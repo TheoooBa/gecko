@@ -26,11 +26,11 @@ export default function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Link href="/rapport" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">
-            Sign in
+          <Link href="/search" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">
+            Search
           </Link>
           <Link
-            href="/rapport"
+            href="/search"
             className="text-sm bg-gecko text-white px-4 py-2 rounded-md hover:bg-gecko-dark transition-colors font-medium"
           >
             Try for free
@@ -59,8 +59,11 @@ export default function Navbar() {
           <Link href="/about" className="text-sm text-slate-600" onClick={() => setOpen(false)}>
             About
           </Link>
+          <Link href="/search" className="text-sm text-slate-600" onClick={() => setOpen(false)}>
+            Search
+          </Link>
           <Link
-            href="/rapport"
+            href="/search"
             className="text-sm bg-gecko text-white px-4 py-2 rounded-md text-center font-medium"
             onClick={() => setOpen(false)}
           >
