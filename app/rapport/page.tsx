@@ -198,10 +198,16 @@ export default async function RapportPage({
   const rna = association.complements.identifiant_association;
   const legalFormCode = association.nature_juridique;
   const legalFormLabel = NATURE_JURIDIQUE[legalFormCode] ?? `Association (${legalFormCode})`;
+  const libelleCommune = association.siege.libelle_commune
+    ? association.siege.libelle_commune
+        .split(" ")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join(" ")
+    : association.siege.code_postal;
   const addressParts = [
     association.siege.adresse,
     association.siege.code_postal,
-    association.siege.commune,
+    libelleCommune,
   ].filter(Boolean);
   const address = addressParts.join(", ");
   const founded = formatDate(association.siege.date_creation);

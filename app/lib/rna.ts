@@ -2,6 +2,7 @@ export type AssociationSiege = {
   adresse: string;
   code_postal: string;
   commune: string;
+  libelle_commune: string | null;
   date_creation: string | null;
   siret: string;
   etat_administratif: string;

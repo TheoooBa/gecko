@@ -1,16 +1,49 @@
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 import SearchBar from "../components/SearchBar";
-import { searchAssociations, NATURE_JURIDIQUE, formatDate, type AssociationResult } from "../lib/rna";
+import { searchAssociations, NATURE_JURIDIQUE, type AssociationResult } from "../lib/rna";
+
+// ─── Helpers ───────────────────────────────────────────────────────────────────
+
+const PUBLIC_UTILITY_CODES = new Set(["9230", "9231"]);
+
+function isPublicUtility(a: AssociationResult) {
+  return PUBLIC_UTILITY_CODES.has(a.nature_juridique);
+}
+
+function sortResults(results: AssociationResult[]): AssociationResult[] {
+  return [...results].sort((a, b) => {
+    // 1. Public utility associations first
+    const aTop = isPublicUtility(a);
+    const bTop = isPublicUtility(b);
+    if (aTop !== bTop) return aTop ? -1 : 1;
+
+    // 2. Tiebreaker: oldest founding date first (null dates last)
+    const aMs = a.siege.date_creation ? Date.parse(a.siege.date_creation) : Infinity;
+    const bMs = b.siege.date_creation ? Date.parse(b.siege.date_creation) : Infinity;
+    return aMs - bMs;
+  });
+}
+
+// libelle_commune comes in uppercase ("PARIS 13EME ARRONDISSEMENT")
+// Convert to title case for display, fall back to postal code
+function formatCity(a: AssociationResult): string | null {
+  const name = a.siege.libelle_commune;
+  if (name) {
+    return name
+      .split(" ")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(" ");
+  }
+  return a.siege.code_postal ?? null;
+}
 
 // ─── Result card ───────────────────────────────────────────────────────────────
 
 function ResultCard({ a }: { a: AssociationResult }) {
   const isActive = a.etat_administratif === "A";
   const legalForm = NATURE_JURIDIQUE[a.nature_juridique] ?? "Association";
-  const city = a.siege.commune
-    ? `${a.siege.commune}${a.siege.code_postal ? ` (${a.siege.code_postal})` : ""}`
-    : null;
+  const city = formatCity(a);
   const founded = a.siege.date_creation
     ? new Date(a.siege.date_creation).getFullYear()
     : null;
@@ -22,27 +55,26 @@ function ResultCard({ a }: { a: AssociationResult }) {
     >
       <div className="min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm font-semibold text-slate-900 group-hover:text-gecko transition-colors truncate">
+          <span className="text-sm font-semibold text-slate-900 group-hover:text-gecko transition-colors">
             {a.nom_complet}
           </span>
           <span
             className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${
-              isActive
-                ? "bg-emerald-50 text-emerald-700"
-                : "bg-slate-100 text-slate-500"
+              isActive ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"
             }`}
           >
             {isActive ? "Active" : "Inactive"}
           </span>
+          {isPublicUtility(a) && (
+            <span className="shrink-0 text-xs font-medium px-2 py-0.5 rounded-full bg-gecko-muted text-gecko">
+              Utilité publique
+            </span>
+          )}
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5">
-          {city && (
-            <span className="text-xs text-slate-500">{city}</span>
-          )}
+          {city && <span className="text-xs text-slate-500">{city}</span>}
           <span className="text-xs text-slate-400">{legalForm}</span>
-          {founded && (
-            <span className="text-xs text-slate-400">Est. {founded}</span>
-          )}
+          {founded && <span className="text-xs text-slate-400">Est. {founded}</span>}
           <span className="text-xs text-slate-300 font-mono">SIREN {a.siren}</span>
         </div>
       </div>
@@ -106,7 +138,7 @@ export default async function SearchPage({
 
   try {
     const data = await searchAssociations(query, 20);
-    results = data.results;
+    results = sortResults(data.results);
     totalResults = data.total_results;
   } catch {
     apiError = true;
@@ -118,7 +150,6 @@ export default async function SearchPage({
       <main className="flex flex-col pt-16 bg-offwhite min-h-screen">
         <div className="max-w-3xl mx-auto w-full px-6 py-10">
 
-          {/* Refined search bar */}
           <div className="mb-8">
             <SearchBar defaultValue={query} />
           </div>
@@ -136,12 +167,14 @@ export default async function SearchPage({
             <>
               <div className="flex items-baseline justify-between mb-4">
                 <p className="text-sm text-slate-500">
-                  <span className="font-semibold text-slate-900">{totalResults.toLocaleString("en")}</span>{" "}
+                  <span className="font-semibold text-slate-900">
+                    {totalResults.toLocaleString("en")}
+                  </span>{" "}
                   association{totalResults !== 1 ? "s" : ""} matching{" "}
                   <span className="font-medium">"{query}"</span>
                 </p>
                 {totalResults > 20 && (
-                  <p className="text-xs text-slate-400">Showing top 20 — refine to narrow results</p>
+                  <p className="text-xs text-slate-400">Showing top 20 — refine to narrow</p>
                 )}
               </div>
 
