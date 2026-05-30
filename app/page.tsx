@@ -93,7 +93,7 @@ function MockReportCard() {
       <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-white via-white/90 to-transparent pointer-events-none" />
       <div className="absolute inset-x-0 bottom-0 pb-5 flex justify-center">
         <Link
-          href="/rapport"
+          href="/rapport?q=Les+Restos+du+Coeur"
           className="inline-flex items-center gap-1.5 text-sm text-gecko font-semibold hover:underline"
         >
           See full report
@@ -199,15 +199,15 @@ export default function Home() {
           </div>
           <p className="mt-3 text-xs text-slate-400">
             Try:{" "}
-            <Link href="/rapport" className="text-gecko hover:underline">
+            <Link href="/rapport?q=Les+Restos+du+Coeur" className="text-gecko hover:underline">
               Les Restos du Cœur
             </Link>
             {", "}
-            <Link href="/rapport" className="text-gecko hover:underline">
+            <Link href="/rapport?q=M%C3%A9decins+Sans+Fronti%C3%A8res" className="text-gecko hover:underline">
               Médecins Sans Frontières
             </Link>
             {", "}
-            <Link href="/rapport" className="text-gecko hover:underline">
+            <Link href="/rapport?q=Fondation+de+France" className="text-gecko hover:underline">
               Fondation de France
             </Link>
           </p>
@@ -328,10 +328,10 @@ export default function Home() {
             </div>
 
             <Link
-              href="/rapport"
+              href="/rapport?q=Les+Restos+du+Coeur"
               className="mt-8 inline-flex items-center gap-1.5 text-sm text-gecko font-semibold hover:underline"
             >
-              View sample report — Les Restos du Cœur
+              View sample report — Les Restos du Cœur →
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
@@ -455,7 +455,7 @@ export default function Home() {
               <Link href="/about" className="hover:text-slate-900 transition-colors">
                 About
               </Link>
-              <Link href="/rapport" className="hover:text-slate-900 transition-colors">
+              <Link href="/rapport?q=Les+Restos+du+Coeur" className="hover:text-slate-900 transition-colors">
                 Sample report
               </Link>
               <a href="#" className="hover:text-slate-900 transition-colors">

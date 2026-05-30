@@ -9,7 +9,9 @@ export default function SearchBar({ placeholder }: { placeholder?: string }) {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    router.push("/rapport");
+    const q = query.trim();
+    if (!q) return;
+    router.push(`/rapport?q=${encodeURIComponent(q)}`);
   };
 
   return (
