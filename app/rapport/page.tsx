@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import PrintButton from "./PrintButton";
 import {
   searchAssociations,
+  getAssociationBySiren,
   formatDate,
   NATURE_JURIDIQUE,
   EFFECTIF_LABELS,
@@ -171,23 +172,27 @@ function ApiError() {
 export default async function RapportPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ siren?: string; q?: string }>;
 }) {
-  const { q } = await searchParams;
-  const query = q?.trim() ?? "Les Restos du Coeur";
+  const { siren, q } = await searchParams;
 
   let association: AssociationResult | null = null;
   let apiError = false;
 
   try {
-    const data = await searchAssociations(query);
-    association = data.results[0] ?? null;
+    if (siren?.trim()) {
+      association = await getAssociationBySiren(siren.trim());
+    } else {
+      const query = q?.trim() ?? "Les Restos du Coeur";
+      const data = await searchAssociations(query, 1);
+      association = data.results[0] ?? null;
+    }
   } catch {
     apiError = true;
   }
 
   if (apiError) return <ApiError />;
-  if (!association) return <NotFound query={query} />;
+  if (!association) return <NotFound query={siren ?? q ?? ""} />;
 
   // ── Map real identity fields ──────────────────────────────────────────────
   const rna = association.complements.identifiant_association;
@@ -220,13 +225,13 @@ export default async function RapportPage({
 
           {/* Back */}
           <Link
-            href="/"
+            href={q ? `/search?q=${encodeURIComponent(q)}` : "/"}
             className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors mb-6"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
-            Back to search
+            {q ? "Back to results" : "Back to search"}
           </Link>
 
           {/* Report header */}

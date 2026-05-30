@@ -3,15 +3,21 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function SearchBar({ placeholder }: { placeholder?: string }) {
-  const [query, setQuery] = useState("");
+export default function SearchBar({
+  placeholder,
+  defaultValue,
+}: {
+  placeholder?: string;
+  defaultValue?: string;
+}) {
+  const [query, setQuery] = useState(defaultValue ?? "");
   const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const q = query.trim();
     if (!q) return;
-    router.push(`/rapport?q=${encodeURIComponent(q)}`);
+    router.push(`/search?q=${encodeURIComponent(q)}`);
   };
 
   return (

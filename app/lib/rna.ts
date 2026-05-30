@@ -83,10 +83,19 @@ export function formatDate(dateStr: string | null | undefined): string {
 }
 
 export async function searchAssociations(
-  query: string
+  query: string,
+  perPage = 10
 ): Promise<SearchResponse> {
-  const url = `https://recherche-entreprises.api.gouv.fr/search?q=${encodeURIComponent(query)}&page=1&per_page=10&type=association`;
+  const url = `https://recherche-entreprises.api.gouv.fr/search?q=${encodeURIComponent(query)}&page=1&per_page=${perPage}&type=association`;
   const res = await fetch(url, { next: { revalidate: 300 } });
   if (!res.ok) throw new Error(`RNA API returned ${res.status}`);
   return res.json() as Promise<SearchResponse>;
+}
+
+export async function getAssociationBySiren(
+  siren: string
+): Promise<AssociationResult | null> {
+  const data = await searchAssociations(siren, 1);
+  const match = data.results.find((r) => r.siren === siren);
+  return match ?? data.results[0] ?? null;
 }
